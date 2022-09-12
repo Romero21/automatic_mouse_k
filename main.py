@@ -1,6 +1,5 @@
 import pyautogui
-import win32api
-import os 
+import win32api 
 import time
 
 
