@@ -34,12 +34,13 @@ if __name__ == "__main__":
         if is_pressed_L():
             timer.append(time.time())
             m_pos.append(check_positions())
+            
         else:
             try:
-                if m_pos != ["0"]:
+                if m_pos[0] != "0":
                     sequence.append(["sec_run", "{:.2f}".format(timer[0] - start_time)])
-                    sequence.append(["click", m_pos[0][0], m_pos[0][1], m_pos[-1:][0], m_pos[-1:][1], "{:.2f}".format(time.time() - timer[0])])
-                m_pos = ["0"]
+                    sequence.append(["click", m_pos[0][0], m_pos[0][1], m_pos[-1][0], m_pos[-1][1], "{:.2f}".format(time.time() - timer[0])])
+                m_pos[0] = "0"
                 timer = []
             except:
                 pass
@@ -58,9 +59,14 @@ if __name__ == "__main__":
                 pyautogui.moveTo(item[1],item[2])
             if item[0] == "sec_run":
                 while "{:.2f}".format(time.time() - start_time) != item[1]:
-                    #print("{:.2f}".format(time.time() - start_time), item[1])
+                    print("{:.2f}".format(time.time() - start_time), item[1])
                     if "{:.2f}".format(time.time() - start_time) == item[1]:
                         continue
             if item[0] == "click":
-                pyautogui.dragTo(item[1], item[2], float(item[3]), button='left')
+                pyautogui.moveTo(item[1], item[2])
+                pyautogui.mouseDown()
+                time.sleep(float(item[5]))
+                pyautogui.moveTo(item[3], item[4])
+                #pyautogui.dragTo(item[3], item[4], float(item[5])+0.50, button='left')
+                pyautogui.mouseUp()
 
