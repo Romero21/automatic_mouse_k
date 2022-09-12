@@ -20,40 +20,47 @@ def play_sequence():
     return True if input("Do you wanna play your sequence? Y/N: ").lower() == "y" else False   
 
 
-positions = []
-start_t = []
+sequence = []
+timer = []
+m_pos = []
 
 
 if __name__ == "__main__":
-    positions.append(["mouse", check_positions()[0],check_positions()[1]])
+    sequence.append(["mouse", check_positions()[0],check_positions()[1]])
     answer = start_record()
+    start_time = time.time()
+
     while answer:
         if is_pressed_L():
-            start_t.append(time.time())
-            m_pos = check_positions()
+            timer.append(time.time())
+            m_pos.append(check_positions())
         else:
             try:
-                if m_pos != "":
-                    positions.append(["mouse", m_pos[0], m_pos[1]]) 
-                    positions.append(["click", m_pos[0], m_pos[1]]) 
-                    positions.append(["sec", "{:.2f}".format(start_t[0]-time.time())])
-                m_pos = ""
-                start_t = []
+                if m_pos != ["0"]:
+                    sequence.append(["sec_run", "{:.2f}".format(timer[0] - start_time)])
+                    sequence.append(["click", m_pos[0][0], m_pos[0][1], m_pos[-1:][0], m_pos[-1:][1], "{:.2f}".format(time.time() - timer[0])])
+                m_pos = ["0"]
+                timer = []
             except:
                 pass
+            m_pos = []
 
         if is_pressed_L() and is_pressed_R():
             break
 
-        print(positions)
+        print(sequence)
 
     
     if play_sequence():
-        for item in positions:
+        start_time = time.time()
+        for item in sequence:
             if item[0] == "mouse":
                 pyautogui.moveTo(item[1],item[2])
+            if item[0] == "sec_run":
+                while "{:.2f}".format(time.time() - start_time) != item[1]:
+                    #print("{:.2f}".format(time.time() - start_time), item[1])
+                    if "{:.2f}".format(time.time() - start_time) == item[1]:
+                        continue
             if item[0] == "click":
-                pyautogui.click()
-            if item[0] == "sec":
-                pass
+                pyautogui.dragTo(item[1], item[2], float(item[3]), button='left')
 
