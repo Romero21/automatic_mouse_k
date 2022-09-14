@@ -25,19 +25,19 @@ if __name__ == "__main__":
     answer = start_record()
     l_button = False
     r_button = True
-    sequence = []
+    sequence = [[False, 0, 0]]
 
-    while answer:
+    while answer: 
         sequence.append(["moveTo()", check_positions()[0],check_positions()[1]])
         if is_pressed_L():
             if l_button == False:
-                sequence.append(["mouseDown()", "mouseDown()", "mouseDown()"])
+                sequence.append(["mouseDown()"])
                 l_button = True
                 r_button = True
             
         else:
             if r_button == True:
-                sequence.append(["mouseUp()", "mouseUp()", "mouseUp()"])
+                sequence.append(["mouseUp()"])
                 l_button = False
                 r_button = False
 
@@ -48,10 +48,12 @@ if __name__ == "__main__":
 
     
     if play_sequence():
+        pyautogui.FAILSAFE = False
         for item in sequence:
             if item[0] == "moveTo()":
                 pyautogui.moveTo(item[1],item[2])
             if item[0] == "mouseDown()":
+                pyautogui.click()
                 pyautogui.mouseDown()
             if item[0] == "mouseUp()":
                 pyautogui.mouseUp()
