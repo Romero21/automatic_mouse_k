@@ -1,5 +1,6 @@
 import pyautogui
 import win32api 
+import win32con
 import time
 
 
@@ -16,45 +17,65 @@ def is_pressed_R():
 def start_record():
     return True if input("Do you wanna record sequence? Y/N: ").lower() == "y" else False 
 
+def stop_record():
+    return True if win32api.GetKeyState(win32con.VK_ESCAPE)<0 else False
+
 def play_sequence():
     return True if input("Do you wanna play your sequence? Y/N: ").lower() == "y" else False   
 
 
+pyautogui.FAILSAFE = False
+mouse_down_L, mouse_up_L, mouse_down_R, mouse_up_R = True, False, True, False
+sequence = []
+counter_rec = 0
+counter_play = 0
+iteration = 0
+        
+
 if __name__ == "__main__":
-    
     answer = start_record()
-    l_button = False
-    r_button = True
-    sequence = [[False, 0, 0]]
-
-    while answer: 
-        sequence.append(["moveTo()", check_positions()[0],check_positions()[1]])
+    while answer:
+        time.sleep(0.01)
+        counter_rec += 1 
         if is_pressed_L():
-            if l_button == False:
-                sequence.append(["mouseDown()"])
-                l_button = True
-                r_button = True
-            
+            if mouse_down_L == True:
+                sequence.append(["mouseDown(L)", check_positions()[0],check_positions()[1], counter_rec])
+                mouse_down_L = False
+                mouse_up_L = True   
         else:
-            if r_button == True:
-                sequence.append(["mouseUp()"])
-                l_button = False
-                r_button = False
-
-        if is_pressed_L() and is_pressed_R():
+            if mouse_up_L == True:
+                sequence.append(["mouseUp(L)", check_positions()[0],check_positions()[1], counter_rec])
+                mouse_down_L = True
+                mouse_up_L = False
+        if is_pressed_R():
+            if mouse_down_R == True:
+                sequence.append(["mouseDown(R)", check_positions()[0],check_positions()[1], counter_rec])
+                mouse_down_R = False
+                mouse_up_R = True   
+        else:
+            if mouse_up_R == True:
+                sequence.append(["mouseUp(R)", check_positions()[0],check_positions()[1], counter_rec])
+                mouse_down_R = True
+                mouse_up_R = False
+        if stop_record():
             break
-
-        time.sleep(0.1)
-
+    print(sequence)    
     
     if play_sequence():
-        pyautogui.FAILSAFE = False
-        for item in sequence:
-            if item[0] == "moveTo()":
-                pyautogui.moveTo(item[1],item[2])
-            if item[0] == "mouseDown()":
-                pyautogui.click()
-                pyautogui.mouseDown()
-            if item[0] == "mouseUp()":
-                pyautogui.mouseUp()
-    pyautogui.mouseUp()
+        while sequence[-1][3] >= counter_play:
+            if sequence[iteration][3] == counter_play:
+                if sequence[iteration][0] == "mouseDown(L)":
+                    pyautogui.moveTo(sequence[iteration][1],sequence[iteration][2])
+                    pyautogui.mouseDown()
+                if sequence[iteration][0] == "mouseUp(L)":
+                    pyautogui.moveTo(sequence[iteration][1],sequence[iteration][2]) 
+                    pyautogui.mouseUp()
+                if sequence[iteration][0] == "mouseDown(R)":
+                    pyautogui.moveTo(sequence[iteration][1],sequence[iteration][2])
+                    pyautogui.mouseDown(button='right')
+                if sequence[iteration][0] == "mouseUp(R)":
+                    pyautogui.moveTo(sequence[iteration][1],sequence[iteration][2]) 
+                    pyautogui.mouseUp(button='right')
+                iteration += 1
+            counter_play += 1
+            time.sleep(0.00001)
