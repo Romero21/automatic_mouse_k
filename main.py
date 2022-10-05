@@ -2,7 +2,7 @@ import pyautogui
 import win32api 
 import win32con
 import time
-
+import json
 
 def check_positions():
     mouse = pyautogui.position()
@@ -20,19 +20,40 @@ def start_record():
 def stop_record():
     return True if win32api.GetKeyState(win32con.VK_ESCAPE)<0 else False
 
+def save_sequence(sequence):
+    name = input("Would you like to save your sequence?\n(Input 'name' of sequence or NO for exit): ")
+    if name.lower() == "no":
+        exit()
+    else:
+        with open(f"rec_seq\{name}.txt", "w") as f:
+            json.dump(sequence, f, indent=2)
+
+def load_sequence():
+    sequence = []
+    name = input("Would you like to play existing sequence?\n(Input 'name' of sequence or NO for continue): ")
+    if name.lower() == "no":
+        return sequence
+    else:
+        try:
+            with open(f"rec_seq\{name}.txt", "r") as f:
+                sequence = json.load(f)
+            return sequence
+        except:
+            print("Wrong format!")
+
 def play_sequence():
     return True if input("Do you wanna play your sequence? Y/N: ").lower() == "y" else False   
 
 
 pyautogui.FAILSAFE = False
 mouse_down_L, mouse_up_L, mouse_down_R, mouse_up_R = True, False, True, False
-sequence = []
 counter_rec = 0
 counter_play = 0
 iteration = 0
         
 
 if __name__ == "__main__":
+    sequence = load_sequence()
     answer = start_record()
     while answer:
         time.sleep(0.01)
@@ -59,7 +80,7 @@ if __name__ == "__main__":
                 mouse_up_R = False
         if stop_record():
             break
-    print(sequence)    
+
     
     if play_sequence():
         while sequence[-1][3] >= counter_play:
@@ -79,3 +100,6 @@ if __name__ == "__main__":
                 iteration += 1
             counter_play += 1
             time.sleep(0.00001)
+
+    
+    save_sequence(sequence)

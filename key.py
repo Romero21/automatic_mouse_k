@@ -1,18 +1,27 @@
-from pynput.keyboard import Key, Listener
+import keyboard
 
-def on_press(key):
-    print('{0} pressed'.format(
-        key))
 
-def on_release(key):
-    print('{0} release'.format(
-        key))
-    if key == Key.esc:
-        # Stop listener
-        return False
+key_list = []
+write_to = True
+counter = 0
 
-# Collect events until released
-with Listener(
-        on_press=on_press,
-        on_release=on_release) as listener:
-    listener.join()
+while True:
+    counter += 1
+    if keyboard.is_pressed(keyboard.read_key()):
+        key = keyboard.read_key()
+        if key == "esc":
+            break
+        elif keyboard.is_pressed(key):
+            if write_to == True:
+                key_list.append([f"{key}(Down)", counter])
+                write_to = False
+            continue
+        else:
+            key_list.append([f"{key}(Up)", counter])
+            write_to = True
+    else:
+        continue
+    
+    
+
+print(key_list)
